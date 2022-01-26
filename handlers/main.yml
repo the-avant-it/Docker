@@ -1,0 +1,9 @@
+---
+- become: yes
+  block:
+
+  - name: Restart docker
+    service: 
+      name: docker 
+      state: "{{ docker.restart_handler_state }}"
+    ignore_errors: "{{ ansible_check_mode }}"

@@ -1,0 +1,59 @@
+---
+- vars:
+    apt_repository: "deb [arch={{ docker.apt_arch }}] {{ docker.repo_url }}/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} {{ docker.apt_release_channel }}"
+    apt_gpg_key: "{{ docker.repo_url }}/{{ ansible_distribution | lower }}/gpg"
+  become: yes
+  block:
+
+  - name: Ensure old versions of Docker are not installed
+    package:
+      name:
+        - docker
+        - docker-engine
+      state: absent
+
+  - name: Ensure dependencies are installed
+    apt:
+      name:
+        - apt-transport-https
+        - ca-certificates
+      state: present
+
+  - name: Ensure additional dependencies are installed (on Ubuntu < 20.04 and any other systems)
+    apt:
+      name: gnupg2
+      state: present
+    when: ansible_distribution != 'Ubuntu' or ansible_distribution_version is version('20.04', '<')
+
+  - name: Ensure additional dependencies are installed (on Ubuntu >= 20.04)
+    apt:
+      name: gnupg
+      state: present
+    when: ansible_distribution == 'Ubuntu' or ansible_distribution_version is version('20.04', '>=')
+
+  - name: Add Docker apt key
+    apt_key:
+      url: "{{ apt_gpg_key }}"
+      id: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
+      state: present
+    register: add_repository_key
+    ignore_errors: "{{ docker.apt_ignore_key_error }}"
+
+  - name: Ensure curl is present (on older systems without SNI)
+    package: 
+      name: curl 
+      state: present
+    when: add_repository_key is failed
+
+  - name: Add Docker apt key (alternative for older systems without SNI)
+    shell: >
+      curl -sSL {{ apt_gpg_key }} | apt-key add -
+    args:
+      warn: false
+    when: add_repository_key is failed
+
+  - name: Add Docker repository
+    apt_repository:
+      repo: "{{ apt_repository }}"
+      state: present
+      update_cache: true
