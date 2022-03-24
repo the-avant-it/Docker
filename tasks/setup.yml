@@ -57,3 +57,7 @@
       repo: "{{ apt_repository }}"
       state: present
       update_cache: true
+  
+  - name: Install docker py library
+    apt:
+      name: python3-docker=4.1.0-1
