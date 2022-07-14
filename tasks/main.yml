@@ -14,6 +14,11 @@
     notify: Restart docker
     ignore_errors: "{{ ansible_check_mode }}"
 
+  - name: Install Python docker SDK for all users
+    pip:
+      name: docker
+      umask: "0022"
+
   - name: Ensure /etc/docker/ directory exists
     file:
       path: /etc/docker
