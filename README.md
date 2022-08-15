@@ -6,7 +6,7 @@ Role for installing Docker runtime
 
 ## 1.1.1
 
-- Fix error on Add Docker repository
+- Fix error on Add Docker repository when using with gitlab role in Russia
 
 ## 1.1.0
 
