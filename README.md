@@ -1,8 +1,12 @@
-# Avant.Docker
+# Common.Docker
 
 Role for installing Docker runtime
 
 # Changelog
+
+## 1.1.2
+
+- Fix No package matching 'docker-ce' is available
 
 ## 1.1.1
 

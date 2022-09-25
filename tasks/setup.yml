@@ -61,7 +61,8 @@
   - name: Apt update
     apt:
       update_cache: yes
-      cache_valid_time: 36000
+      # Commented, otherwise it conflicts with common role
+      # cache_valid_time: 36000
     # For Russia
     retries: 3
     delay: 10  
