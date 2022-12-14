@@ -1,5 +1,8 @@
 ---
 docker:
+  enable_cache: yes
+  cache_key: default
+
   # Edition can be one of: 'ce' (Community Edition) or 'ee' (Enterprise Edition).
   edition: 'ce'
   package_version: "5:20.10.20~3-0~ubuntu-focal"

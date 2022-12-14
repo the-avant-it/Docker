@@ -1,45 +1,62 @@
 ---
-- include_tasks: setup.yml
+# Do not run this role every time
+- name: Find recent run marker
+  find:
+    paths: /tmp
+    pattern: '{{ role_name }}.{{ common.cache_key }}.run-marker'
+    age: -1h
+  register: run_marker
 
-- vars:
-    package: "docker-{{ docker.edition }}{{ (docker.package_version == '') | ternary('', '=' + docker.package_version) }}"
-  become: yes
+- become: yes
+  when: run_marker.files | length == 0 or not common.enable_cache
   block:
 
-  - name: Install Docker
-    package:
-      name: "{{ package }}"
-      state: "{{ docker.package_state }}"
-      use: "apt"
-    notify: Restart docker
-    ignore_errors: "{{ ansible_check_mode }}"
+  - include_tasks: setup.yml
 
-  - name: Install Python docker SDK for all users
-    pip:
-      name: docker
-      umask: "0022"
+  - vars:
+      package: "docker-{{ docker.edition }}{{ (docker.package_version == '') | ternary('', '=' + docker.package_version) }}"
+    become: yes
+    block:
 
-  - name: Ensure /etc/docker/ directory exists
-    file:
-      path: /etc/docker
-      state: directory
-      mode: 0755
-    when: docker.daemon_options.keys() | length > 0
+    - name: Install Docker
+      package:
+        name: "{{ package }}"
+        state: "{{ docker.package_state }}"
+        use: "apt"
+      notify: Restart docker
+      ignore_errors: "{{ ansible_check_mode }}"
 
-  - name: Configure Docker daemon options
-    copy:
-      content: "{{ docker.daemon_options | to_nice_json }}"
-      dest: /etc/docker/daemon.json
-      mode: 0644
-    when: docker.daemon_options.keys() | length > 0
-    notify: Restart docker
+    - name: Install Python docker SDK for all users
+      pip:
+        name: docker
+        umask: "0022"
 
-  - name: Ensure Docker is started and enabled at boot
-    service:
-      name: docker
-      state: "{{ docker.service_state }}"
-      enabled: "{{ docker.service_enabled }}"
-    ignore_errors: "{{ ansible_check_mode }}"
+    - name: Ensure /etc/docker/ directory exists
+      file:
+        path: /etc/docker
+        state: directory
+        mode: 0755
+      when: docker.daemon_options.keys() | length > 0
 
-  - name: Ensure handlers are notified now to avoid firewall conflicts
-    meta: flush_handlers
+    - name: Configure Docker daemon options
+      copy:
+        content: "{{ docker.daemon_options | to_nice_json }}"
+        dest: /etc/docker/daemon.json
+        mode: 0644
+      when: docker.daemon_options.keys() | length > 0
+      notify: Restart docker
+
+    - name: Ensure Docker is started and enabled at boot
+      service:
+        name: docker
+        state: "{{ docker.service_state }}"
+        enabled: "{{ docker.service_enabled }}"
+      ignore_errors: "{{ ansible_check_mode }}"
+
+    - name: Ensure handlers are notified now to avoid firewall conflicts
+      meta: flush_handlers
+
+    - name: Create run marker
+      file:
+        path: /tmp/{{ role_name }}.{{ common.cache_key }}.run-marker
+        state: touch            

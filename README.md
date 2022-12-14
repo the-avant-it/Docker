@@ -4,6 +4,10 @@ Role for installing Docker runtime
 
 # Changelog
 
+## 2.1.0
+
+- Add caching
+
 ## 2.0.0
 
 - BREAKING CHANGE: Set default docker version to 5:20.10.20~3-0~ubuntu-focal
