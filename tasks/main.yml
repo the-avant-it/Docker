@@ -58,7 +58,7 @@
 
     - name: Copy config
       template:
-        src: templates/docker.json.j2
+        src: templates/daemon.json.j2
         dest: /etc/docker/daemon.json
       notify: Restart docker
 
