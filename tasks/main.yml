@@ -56,6 +56,12 @@
     - name: Ensure handlers are notified now to avoid firewall conflicts
       meta: flush_handlers
 
+    - name: Copy config
+      template:
+        src: templates/docker.json
+        dest: /etc/docker/daemon.json
+      notify: Restart docker
+
     - name: Create run marker
       file:
         path: /tmp/{{ role_name }}.{{ common.cache_key }}.run-marker

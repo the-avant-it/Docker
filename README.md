@@ -4,6 +4,10 @@ Role for installing Docker runtime
 
 # Changelog
 
+## 2.2.0
+
+- Add log rotation
+
 ## 2.1.0
 
 - Add caching
