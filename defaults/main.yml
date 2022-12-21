@@ -22,4 +22,8 @@ docker:
   apt_ignore_key_error: true
 
   # Docker daemon options as a dict
-  daemon_options: {}
+  daemon_options: 
+    log-driver: local
+    log-opts: 
+      max-size: 100m
+      max-file: "3"
