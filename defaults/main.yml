@@ -25,7 +25,6 @@ docker:
   # Docker tmpfs options
   tmpfs_storage:
     enable: false
-    storage_size_gb: 100g
     path: /mnt/docker
 
   # Docker daemon options as a dict
