@@ -66,7 +66,7 @@
         path: /mnt/docker
         src: tmpfs
         fstype: tmpfs
-        opts: nodev,nosuid,noexec,nodiratime,size={{docker.tmpfs_storage.storage_size_gb}}
+        opts: nodev,nosuid,noexec,nodiratime,size={{ docker.tmpfs_storage.storage_size_gb }}
         state: mounted
       notify: Restart docker
       when: docker.tmpfs_storage.enable|bool == true
