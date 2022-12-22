@@ -4,6 +4,10 @@ Role for installing Docker runtime
 
 # Changelog
 
+## 2.3.0
+
+- Add support for storing layer cache in tmpfs (docker.tmpfs_storage var)
+
 ## 2.2.0
 
 - Add log rotation
@@ -28,7 +32,7 @@ Role for installing Docker runtime
 
 - Add Install Python docker SDK for all users
 
-# Documentation for V2.0.0
+# Documentation for V2.3.0
 
 ## Variables
 
@@ -58,6 +62,15 @@ docker:
 
   # Docker daemon options as a dict
   daemon_options: {}
+
+  # Configuration storing layer cache in RAM. Optional.
+  tmpfs_storage:
+    # Enable. Optional. False by default
+    enable: false
+    # Whether to create tmpfs mount and use ti as docker root_dir. Required if enable == true
+    storage_size_gb: 100g
+    # Where to create tmpfs mount. Optional. /mnt/docker by default
+    path: /mnt/docker      
 ```  
 
 ### Secret

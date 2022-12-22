@@ -28,11 +28,9 @@ docker:
     storage_size_gb: 100g
     path: /mnt/docker
 
-
   # Docker daemon options as a dict
   daemon_options: 
     log-driver: local
     log-opts: 
       max-size: 100m
       max-file: "3"
-    root_dir: "/var/lib/docker"

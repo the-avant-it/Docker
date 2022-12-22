@@ -31,19 +31,28 @@
         name: docker
         umask: "0022"
 
+    - name: Set daemon_options
+      set_fact:
+        daemon_options: "{{ docker.tmpfs_storage.enable 
+          | ternary(
+              docker.daemon_options | combine({ 'root_dir': docker.tmpfs_storage.path },
+              docker.daemon_options
+            ) 
+          }}"
+
     - name: Ensure /etc/docker/ directory exists
       file:
         path: /etc/docker
         state: directory
         mode: 0755
-      when: docker.daemon_options.keys() | length > 0
+      when: daemon_options.keys() | length > 0
 
     - name: Configure Docker daemon options
       copy:
-        content: "{{ docker.daemon_options | to_nice_json }}"
+        content: "{{ daemon_options | to_nice_json }}"
         dest: /etc/docker/daemon.json
         mode: 0644
-      when: docker.daemon_options.keys() | length > 0
+      when: daemon_options.keys() | length > 0
       notify: Restart docker
 
     - name: Ensure Docker is started and enabled at boot
@@ -63,10 +72,10 @@
       
     - name: Configure tmpfs for docker
       ansible.posix.mount:
-        path: /mnt/docker
+        path: "{{ docker.tmpfs_storage.path }}"
         src: tmpfs
         fstype: tmpfs
         opts: nodev,nosuid,noexec,nodiratime,size={{ docker.tmpfs_storage.storage_size_gb }}
         state: mounted
       notify: Restart docker
-      when: docker.tmpfs_storage.enable|bool == true
+      when: docker.tmpfs_storage.enable
