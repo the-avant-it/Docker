@@ -60,3 +60,13 @@
       file:
         path: /tmp/{{ role_name }}.{{ common.cache_key }}.run-marker
         state: touch            
+      
+    - name: Configure tmpfs for docker
+      ansible.posix.mount:
+        path: /mnt/docker
+        src: tmpfs
+        fstype: tmpfs
+        opts: nodev,nosuid,noexec,nodiratime,size={{docker.tmpfs_storage.storage_size_gb}}
+        state: mounted
+      notify: Restart docker
+      when: docker.tmpfs_storage.enable|bool == true

@@ -1,5 +1,6 @@
 ---
 docker:
+
   enable_cache: yes
   cache_key: default
 
@@ -21,9 +22,17 @@ docker:
   apt_arch: amd64  
   apt_ignore_key_error: true
 
+  # Docker tmpfs options
+  tmpfs_storage:
+    enable: false
+    storage_size_gb: 100g
+    path: /mnt/docker
+
+
   # Docker daemon options as a dict
   daemon_options: 
     log-driver: local
     log-opts: 
       max-size: 100m
       max-file: "3"
+    root_dir: "/var/lib/docker"
