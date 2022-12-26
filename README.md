@@ -4,6 +4,10 @@ Role for installing Docker runtime
 
 # Changelog
 
+## 2.3.1
+
+- Fix caching vars
+
 ## 2.3.0
 
 - Add support for storing layer cache in tmpfs (docker.tmpfs_storage var)

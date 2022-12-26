@@ -3,12 +3,12 @@
 - name: Find recent run marker
   find:
     paths: /tmp
-    pattern: '{{ role_name }}.{{ common.cache_key }}.run-marker'
+    pattern: '{{ role_name }}.{{ docker.cache_key }}.run-marker'
     age: -1h
   register: run_marker
 
 - become: yes
-  when: run_marker.files | length == 0 or not common.enable_cache
+  when: run_marker.files | length == 0 or not docker.enable_cache
   block:
 
   - include_tasks: setup.yml
@@ -67,7 +67,7 @@
 
     - name: Create run marker
       file:
-        path: /tmp/{{ role_name }}.{{ common.cache_key }}.run-marker
+        path: /tmp/{{ role_name }}.{{ docker.cache_key }}.run-marker
         state: touch            
       
     - name: Configure tmpfs for docker
