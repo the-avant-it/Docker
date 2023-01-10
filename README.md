@@ -64,8 +64,12 @@ docker:
   apt_arch: amd64  
   apt_ignore_key_error: true
 
-  # Docker daemon options as a dict
-  daemon_options: {}
+  # Optional. Docker daemon options as a dict
+  daemon_options: 
+    log-driver: local
+    log-opts: 
+      max-size: 100m
+      max-file: "3"  
 
   # Configuration storing layer cache in RAM. Optional.
   tmpfs_storage:
