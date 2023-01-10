@@ -33,3 +33,6 @@ docker:
     log-opts: 
       max-size: 100m
       max-file: "3"
+
+  ignore_install_errors: no
+  skip_docker_install: no

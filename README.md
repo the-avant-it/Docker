@@ -4,6 +4,10 @@ Role for installing Docker runtime
 
 # Changelog
 
+## 2.4.0
+
+- Add support for docker.ignore_install_errors and docker.skip_docker_install
+
 ## 2.3.1
 
 - Fix caching vars
@@ -36,7 +40,7 @@ Role for installing Docker runtime
 
 - Add Install Python docker SDK for all users
 
-# Documentation for V2.3.0
+# Documentation for V2.4.0
 
 ## Variables
 
@@ -50,6 +54,11 @@ docker:
   edition: 'ce'
   package_version: "5:20.10.20~3-0~ubuntu-focal"
   package_state: present
+
+  # Optional. Whether to install docker. Usefull for existing systems where docker already installed
+  skip_docker_install: no
+  # Optional. Whether to ignore docker installation errors. Usefull if other docker version already insatalled
+  ignore_install_errors: no
 
   # Service options.
   service_state: started

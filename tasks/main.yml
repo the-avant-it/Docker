@@ -24,12 +24,14 @@
         state: "{{ docker.package_state }}"
         use: "apt"
       notify: Restart docker
-      ignore_errors: "{{ ansible_check_mode }}"
+      ignore_errors: "{{ ansible_check_mode or docker.ignore_install_errors }}"
+      when: not docker.skip_docker_install
 
     - name: Install Python docker SDK for all users
       pip:
         name: docker
         umask: "0022"
+      ignore_errors: "{{ docker.ignore_install_errors }}"
 
     - name: Set daemon_options
       set_fact:
