@@ -4,6 +4,10 @@ Role for installing Docker runtime
 
 # Changelog
 
+## 2.4.1
+
+- Fix error on "Ensure Docker is started and enabled at boot" because tmpfs is not configured
+
 ## 2.4.0
 
 - Add support for docker.ignore_install_errors and docker.skip_docker_install

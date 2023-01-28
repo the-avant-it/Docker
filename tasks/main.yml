@@ -57,6 +57,16 @@
       when: daemon_options.keys() | length > 0
       notify: Restart docker
 
+    - name: Create tmpfs for docker
+      ansible.posix.mount:
+        path: "{{ docker.tmpfs_storage.path }}"
+        src: tmpfs
+        fstype: tmpfs
+        opts: nodev,nosuid,noexec,nodiratime,size={{ docker.tmpfs_storage.storage_size_gb }}
+        state: mounted
+      notify: Restart docker
+      when: docker.tmpfs_storage.enable
+
     - name: Ensure Docker is started and enabled at boot
       service:
         name: docker
@@ -71,13 +81,3 @@
       file:
         path: /tmp/{{ role_name }}.{{ docker.cache_key }}.run-marker
         state: touch            
-      
-    - name: Configure tmpfs for docker
-      ansible.posix.mount:
-        path: "{{ docker.tmpfs_storage.path }}"
-        src: tmpfs
-        fstype: tmpfs
-        opts: nodev,nosuid,noexec,nodiratime,size={{ docker.tmpfs_storage.storage_size_gb }}
-        state: mounted
-      notify: Restart docker
-      when: docker.tmpfs_storage.enable
