@@ -37,7 +37,7 @@
       set_fact:
         daemon_options: "{{ docker.tmpfs_storage.enable 
           | ternary(
-              docker.daemon_options | combine({ 'root_dir': docker.tmpfs_storage.path }),
+              docker.daemon_options | combine({ 'data-root': docker.tmpfs_storage.path }),
               docker.daemon_options
             ) 
           }}"

@@ -7,6 +7,7 @@ Role for installing Docker runtime
 ## 2.4.1
 
 - Fix error on "Ensure Docker is started and enabled at boot" because tmpfs is not configured
+- Rename root_dir to data-root
 
 ## 2.4.0
 
