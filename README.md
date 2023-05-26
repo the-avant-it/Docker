@@ -4,6 +4,10 @@ Role for installing Docker runtime
 
 # Changelog
 
+## 2.5.1
+
+- Fix Unable to find any of pip2, pip to use.  pip needs to be installed.
+
 ## 2.5.0
 
 - Add optional docker.skip_install

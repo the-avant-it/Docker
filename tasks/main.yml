@@ -27,12 +27,14 @@
       ignore_errors: "{{ ansible_check_mode or docker.ignore_install_errors }}"
       when: not docker.skip_docker_install and not docker.skip_install
 
-    - name: Install Python docker SDK for all users
-      pip:
-        name: docker
-        umask: "0022"
-      ignore_errors: "{{ docker.ignore_install_errors }}"
-      when: not docker.skip_install
+    - when: not docker.skip_install
+      block:
+
+      - name: Install Python docker SDK for all users
+        pip:
+          name: docker
+          umask: "0022"
+        ignore_errors: "{{ docker.ignore_install_errors }}"
 
     - name: Set daemon_options
       set_fact:
