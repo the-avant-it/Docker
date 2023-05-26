@@ -70,4 +70,5 @@
   - name: Install docker py library
     apt:
       name: python3-docker=4.1.0-1
+    ignore_errors: "{{ docker.ignore_install_errors }}"      
 
