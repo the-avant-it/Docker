@@ -4,6 +4,10 @@ Role for installing Docker runtime
 
 # Changelog
 
+## 2.5.0
+
+- Add optional docker.skip_install
+
 ## 2.4.2
 
 - Add docker.ignore_install_errors to Install docker py library
@@ -49,7 +53,7 @@ Role for installing Docker runtime
 
 - Add Install Python docker SDK for all users
 
-# Documentation for V2.4.0
+# Documentation for V2.5.0
 
 ## Variables
 
@@ -66,6 +70,8 @@ docker:
 
   # Optional. Whether to install docker. Usefull for existing systems where docker already installed
   skip_docker_install: no
+  # Optional. Whether to install docker or any other dependency. Usefull for existing systems where docker already installed
+  skip_install: no
   # Optional. Whether to ignore docker installation errors. Usefull if other docker version already insatalled
   ignore_install_errors: no
 

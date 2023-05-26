@@ -2,6 +2,7 @@
 - vars:
     apt_repository: "deb [arch={{ docker.apt_arch }}] {{ docker.repo_url }}/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} {{ docker.apt_release_channel }}"
     apt_gpg_key: "{{ docker.repo_url }}/{{ ansible_distribution | lower }}/gpg"
+  when: not docker.skip_install
   become: yes
   block:
 
@@ -71,4 +72,3 @@
     apt:
       name: python3-docker=4.1.0-1
     ignore_errors: "{{ docker.ignore_install_errors }}"      
-
