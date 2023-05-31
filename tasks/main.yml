@@ -24,8 +24,9 @@
         state: "{{ docker.package_state }}"
         use: "apt"
       notify: Restart docker
-      ignore_errors: "{{ ansible_check_mode or docker.ignore_install_errors }}"
-      when: not docker.skip_docker_install and not docker.skip_install
+      vars:
+          docker_ignore_failed_when: "{{ docker.ignore_install_errors }}"
+      failed_when: docker_ignore_failed_when
 
     - when: not docker.skip_install
       block:
@@ -34,7 +35,9 @@
         pip:
           name: docker
           umask: "0022"
-        ignore_errors: "{{ docker.ignore_install_errors }}"
+        vars:
+          docker_ignore_failed_when: "{{ docker.ignore_install_errors }}"
+        failed_when: docker_ignore_failed_when
 
     - name: Set daemon_options
       set_fact:
@@ -79,6 +82,7 @@
 
     - name: Ensure handlers are notified now to avoid firewall conflicts
       meta: flush_handlers
+      mode: '0644'
 
     - name: Create run marker
       file:
