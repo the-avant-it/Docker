@@ -82,8 +82,7 @@
 
     - name: Ensure handlers are notified now to avoid firewall conflicts
       meta: flush_handlers
-      mode: '0644'
-
+      
     - name: Create run marker
       file:
         path: /tmp/{{ role_name }}.{{ docker.cache_key }}.run-marker
