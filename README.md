@@ -57,7 +57,7 @@ Role for installing Docker runtime
 
 - Add Install Python docker SDK for all users
 
-# Documentation for V2.5.0
+# Documentation for 2.5.0
 
 ## Variables
 
