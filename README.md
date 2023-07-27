@@ -4,10 +4,10 @@ Role for installing Docker runtime
 
 # Changelog
 
-## 2.5.3
+## 2.5.2
 - Just test CI
 
-## 2.5.2
+## 2.5.3
 - Just test CI
 ## 2.5.1
 
