@@ -4,7 +4,7 @@ Role for installing Docker runtime
 
 # Changelog
 
-## 2.5.2
+## 2.4.3
 
 - Fix Unable to find any of pip2, pip to use.  pip needs to be installed.
 
