@@ -2,6 +2,10 @@
 
 Role for installing Docker runtime
 
+Features:
+- Installing Docker Engine
+- Starting Docker Engine
+
 # Changelog
 
 ## 2.5.1
