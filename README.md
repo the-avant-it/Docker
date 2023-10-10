@@ -2,9 +2,36 @@
 
 Role for installing Docker runtime
 
-Features:
-- Installing Docker Engine
-- Starting Docker Engine
+# Usage
+
+### Specify in requirements.yml which role you need from git
+
+<mark>requirements.yml</mark>
+
+    ---
+    roles: 
+    - src: git+ssh://git@gitlab.avant-it.ru:main/common/ansibleroles/common.docker.git
+      scm: git
+      version: 2.5.1
+      name: docker
+
+
+- src --> specify url of your amsible module repo
+- version --> select specific tag from it
+- name --> name of role which you whill specify in main.yml 
+
+##### main.yml
+
+    ---
+    - name: Some info
+      hosts: docker
+      gather_facts: yes
+      # https://stackoverflow.com/questions/37941253/how-to-stop-the-playbook-if-one-play-fails
+      any_errors_fatal: true
+      roles:
+      - docker
+
+In roles you will specify the name of ansible module which you writed in requirments.yml
 
 # Changelog
 
