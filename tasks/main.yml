@@ -25,7 +25,7 @@
         use: "apt"
       notify: Restart docker
       vars:
-          docker_ignore_failed_when: "{{ docker.ignore_install_errors }}"
+        docker_ignore_failed_when: "{{ docker.ignore_install_errors }}"
       failed_when: docker_ignore_failed_when
 
     - when: not docker.skip_install

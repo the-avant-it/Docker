@@ -78,6 +78,8 @@ All variables are set by default
 docker:
   # Edition can be one of: 'ce' (Community Edition) or 'ee' (Enterprise Edition).
   edition: 'ce'
+  # Optional. 5:20.10.20~3-0~ubuntu-focal by default 
+  #   For ubuntu 20.04 use 5:20.10.20~3-0~ubuntu-focal, for 22.04 use 5:20.10.24~3-0~ubuntu-jammy
   package_version: "5:20.10.20~3-0~ubuntu-focal"
   package_state: present
 
