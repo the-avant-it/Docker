@@ -83,12 +83,8 @@
     - name: Ensure handlers are notified now to avoid firewall conflicts
       meta: flush_handlers
 
-    - name: Set file mode for the task result
-      file:
-        path: "/path/to/file"
-        mode: "0644"
-      
     - name: Create run marker
       file:
         path: /tmp/{{ role_name }}.{{ docker.cache_key }}.run-marker
         state: touch            
+        mode: 0644

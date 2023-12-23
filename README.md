@@ -4,9 +4,10 @@ Role for installing Docker runtime
 
 # Changelog
 
-## 2.6.0
+## 2.6.1
 
 - Add optional ignore_systemd_errors
+- Fix Create run marker
 
 ## 2.5.2
 
