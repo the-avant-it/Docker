@@ -68,9 +68,19 @@
     retries: 3
     delay: 10  
 
+  # - name: Install postgres
+  #   include_role:
+  #     name: apt-install-by-regex
+  #   vars: 
+  #     apt_install_by_regex: 
+  #       package_name: python3-docker
+  #       package_version_regex: "{{ postgres.package_version_regex }}"
+  #   failed_when: docker_ignore_failed_when  
+
+  # Lessen version requirements so that ot would work on ubuntu 22.04 and 20.04
   - name: Install docker py library
     apt:
-      name: python3-docker=4.1.0-1
+      name: python3-docker
     vars:
       docker_ignore_failed_when: "{{ docker.ignore_install_errors }}"
     failed_when: docker_ignore_failed_when      
