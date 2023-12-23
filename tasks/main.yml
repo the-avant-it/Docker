@@ -78,7 +78,7 @@
         name: docker
         state: "{{ docker.service_state }}"
         enabled: "{{ docker.service_enabled }}"
-      ignore_errors: "{{ ansible_check_mode }}"
+      ignore_errors: "{{ docker.ignore_systemd_errors }}"
 
     - name: Ensure handlers are notified now to avoid firewall conflicts
       meta: flush_handlers

@@ -4,6 +4,10 @@ Role for installing Docker runtime
 
 # Changelog
 
+## 2.6.0
+
+- Add optional ignore_systemd_errors
+
 ## 2.5.2
 
 - Lessen version requirements so that ot would work on ubuntu 22.04 and 20.04

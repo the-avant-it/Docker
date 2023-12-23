@@ -6,4 +6,4 @@
     service: 
       name: docker 
       state: "{{ docker.restart_handler_state }}"
-    ignore_errors: "{{ ansible_check_mode }}"
+    ignore_errors: "{{ docker.ignore_systemd_errors }}"

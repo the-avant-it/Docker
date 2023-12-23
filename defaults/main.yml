@@ -37,3 +37,4 @@ docker:
   ignore_install_errors: no
   skip_docker_install: no
   skip_install: no
+  ignore_systemd_errors: no
