@@ -7,7 +7,11 @@ docker:
   # Edition can be one of: 'ce' (Community Edition) or 'ee' (Enterprise Edition).
   edition: 'ce'
   # For ubunti 20.04 = 5:20.10.20~3-0~ubuntu-focal, for 22.04 user 5:20.10.24~3-0~ubuntu-jammy
-  package_version: "5:20.10.20~3-0~ubuntu-focal"
+  package_version: null
+  package_version_os_defaults: 
+    Ubuntu20.04: 5:20.10.20~3-0~ubuntu-focal
+    Ubuntu22.04: 5:20.10.24~3-0~ubuntu-jammy
+
   package_state: present
 
   # Service options.

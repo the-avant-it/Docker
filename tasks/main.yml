@@ -13,6 +13,12 @@
 
   - include_tasks: setup.yml
 
+  - name: Set default value docker.package_version if not specified
+    set_fact:
+      docker:
+        package_version: "{{ docker.package_version_os_defaults[ansible_distribution + ansible_distribution_version] }}"
+    when: docker.package_version == None
+
   - vars:
       package: "docker-{{ docker.edition }}{{ (docker.package_version == '') | ternary('', '=' + docker.package_version) }}"
     become: yes
