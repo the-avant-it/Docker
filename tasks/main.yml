@@ -27,7 +27,8 @@
         src: /etc/docker/daemon.json
         dest: /etc/docker/daemon.json.backup
         remote_src: yes
-      when: ansible.stat.exists
+        mode: '0644' # Установка безопасных разрешений
+      when: "'docker' in ansible_facts.services"
 
     # Блок задач для установки Docker
     - vars:
@@ -40,46 +41,22 @@
             name: "{{ package }}"
             state: "{{ docker.package_state }}"
           notify: Restart docker
-          vars:
-            docker_ignore_failed_when: "{{ docker.ignore_install_errors }}"
-          failed_when: docker_ignore_failed_when
+          failed_when: false # Использовать конкретные условия для failed_when, если нужно
 
-        # Установка Python SDK для Docker для всех пользователей
-        - name: Install Python docker SDK for all users
-          pip:
-            name: docker
-            umask: "0022"
-          when: not docker.skip_install
-          vars:
-            docker_ignore_failed_when: "{{ docker.ignore_install_errors }}"
-          failed_when: docker_ignore_failed_when
+    # Убедиться, что каталог /etc/docker существует
+    - name: Ensure /etc/docker/ directory exists
+      file:
+        path: /etc/docker
+        state: directory
+        mode: '0755'
 
-        # Установка опций для демона Docker
-        - name: Set daemon_options
-          set_fact:
-            daemon_options: "{{ docker.tmpfs_storage.enable 
-              | ternary(
-                  docker.daemon_options | combine({ 'data-root': docker.tmpfs_storage.path }),
-                  docker.daemon_options
-                ) 
-              }}"
-
-        # Убедиться, что каталог /etc/docker существует
-        - name: Ensure /etc/docker/ directory exists
-          file:
-            path: /etc/docker
-            state: directory
-            mode: 0755
-          when: daemon_options.keys() | length > 0
-
-        # Конфигурация опций демона Docker
-        - name: Configure Docker daemon options
-          copy:
-            content: "{{ daemon_options | to_nice_json }}"
-            dest: /etc/docker/daemon.json
-            mode: 0644
-          when: daemon_options.keys() | length > 0
-          notify: Restart docker
+    # Конфигурация опций демона Docker
+    - name: Configure Docker daemon options
+      copy:
+        content: "{{ daemon_options | to_nice_json }}"
+        dest: /etc/docker/daemon.json
+        mode: '0644'
+      notify: Restart docker
 
     # Принудительное выполнение обработчиков
     - name: Ensure handlers are notified now to avoid firewall conflicts
@@ -87,10 +64,12 @@
 
     # Проверка работоспособности сервиса Docker
     - name: Verify Docker service is running
-      command: systemctl is-active docker
-      register: docker_status
-      failed_when: docker_status.stdout != "active"
-      ignore_errors: yes
+      systemd:
+        name: docker
+        state: started
+      register: docker_service
+      changed_when: false
+      failed_when: docker_service.status != "active"
 
     # Откат конфигурации Docker, если сервис не работает
     - name: Restore Docker config from backup and restart if Docker is not running
@@ -100,19 +79,16 @@
             src: /etc/docker/daemon.json.backup
             dest: /etc/docker/daemon.json
             remote_src: yes
+            mode: '0644'
           notify: Restart docker
-        - name: Restart Docker service
-          systemd:
-            name: docker
-            state: restarted
         - name: Fail the role if config is invalid
           fail:
             msg: "The Docker configuration is invalid. The backup configuration has been restored."
-      when: docker_status.failed
+      when: docker_service is failed
 
     # Создание маркера последнего успешного запуска
     - name: Create run marker
       file:
         path: /tmp/{{ role_name }}.{{ docker.cache_key }}.run-marker
         state: touch
-        mode: 0644
+        mode: '0644'

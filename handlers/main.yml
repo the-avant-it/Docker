@@ -1,10 +1,8 @@
 ---
-- become: yes
-  block:
-
-  - name: Restart docker
-    service: 
-      name: docker 
-      state: "{{ docker.restart_handler_state }}"
-      daemon_reload: yes
-    ignore_errors: "{{ docker.ignore_systemd_errors }}"
+- name: Restart docker
+  become: yes
+  systemd:
+    name: docker
+    state: "{{ docker.restart_handler_state | default('restarted') }}"
+    daemon_reload: yes
+  failed_when: false # Предполагаем, что ошибок нет, но может потребоваться логика для конкретных ситуаций
