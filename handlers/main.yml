@@ -6,4 +6,5 @@
     service: 
       name: docker 
       state: "{{ docker.restart_handler_state }}"
+      daemon_reload: yes
     ignore_errors: "{{ docker.ignore_systemd_errors }}"

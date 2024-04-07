@@ -1,5 +1,5 @@
 ---
-# Do not run this role every time
+# Поиск маркера последнего запуска роли
 - name: Find recent run marker
   find:
     paths: /tmp
@@ -7,90 +7,112 @@
     age: -1h
   register: run_marker
 
+# Выполнение блока задач только если роль не запускалась в последний час или если кэширование отключено
 - become: yes
   when: run_marker.files | length == 0 or not docker.enable_cache
   block:
+    # Включение подзадач из setup.yml
+    - include_tasks: setup.yml
 
-  - include_tasks: setup.yml
-
-  - name: Set default value docker.package_version if not specified
-    set_fact:
-      docker:
-        package_version: "{{ docker.package_version_os_defaults[ansible_distribution + ansible_distribution_version] }}"
-    when: docker.package_version == None
-
-  - vars:
-      package: "docker-{{ docker.edition }}{{ (docker.package_version == '') | ternary('', '=' + docker.package_version) }}"
-    become: yes
-    block:
-
-    - name: Install Docker
-      package:
-        name: "{{ package }}"
-        state: "{{ docker.package_state }}"
-        use: "apt"
-      notify: Restart docker
-      vars:
-        docker_ignore_failed_when: "{{ docker.ignore_install_errors }}"
-      failed_when: docker_ignore_failed_when
-
-    - when: not docker.skip_install
-      block:
-
-      - name: Install Python docker SDK for all users
-        pip:
-          name: docker
-          umask: "0022"
-        vars:
-          docker_ignore_failed_when: "{{ docker.ignore_install_errors }}"
-        failed_when: docker_ignore_failed_when
-
-    - name: Set daemon_options
+    # Установка версии пакета Docker по умолчанию, если она не указана
+    - name: Set default value for docker.package_version if not specified
       set_fact:
-        daemon_options: "{{ docker.tmpfs_storage.enable 
-          | ternary(
-              docker.daemon_options | combine({ 'data-root': docker.tmpfs_storage.path }),
-              docker.daemon_options
-            ) 
-          }}"
+        docker:
+          package_version: "{{ docker.package_version_os_defaults[ansible_distribution + ansible_distribution_version] }}"
+      when: docker.package_version is none
 
-    - name: Ensure /etc/docker/ directory exists
-      file:
-        path: /etc/docker
-        state: directory
-        mode: 0755
-      when: daemon_options.keys() | length > 0
-
-    - name: Configure Docker daemon options
+    # Резервное копирование текущей конфигурации Docker
+    - name: Backup current Docker config
       copy:
-        content: "{{ daemon_options | to_nice_json }}"
-        dest: /etc/docker/daemon.json
-        mode: 0644
-      when: daemon_options.keys() | length > 0
-      notify: Restart docker
+        src: /etc/docker/daemon.json
+        dest: /etc/docker/daemon.json.backup
+        remote_src: yes
+      when: ansible.stat.exists
 
-    - name: Create tmpfs for docker
-      ansible.posix.mount:
-        path: "{{ docker.tmpfs_storage.path }}"
-        src: tmpfs
-        fstype: tmpfs
-        opts: nodev,nosuid,noexec,nodiratime,size={{ docker.tmpfs_storage.storage_size_gb }}
-        state: mounted
-      notify: Restart docker
-      when: docker.tmpfs_storage.enable
+    # Блок задач для установки Docker
+    - vars:
+        package: "docker-{{ docker.edition }}{{ (docker.package_version == '') | ternary('', '=' + docker.package_version) }}"
+      become: yes
+      block:
+        # Установка Docker
+        - name: Install Docker
+          package:
+            name: "{{ package }}"
+            state: "{{ docker.package_state }}"
+          notify: Restart docker
+          vars:
+            docker_ignore_failed_when: "{{ docker.ignore_install_errors }}"
+          failed_when: docker_ignore_failed_when
 
-    - name: Ensure Docker is started and enabled at boot
-      service:
-        name: docker
-        state: "{{ docker.service_state }}"
-        enabled: "{{ docker.service_enabled }}"
-      ignore_errors: "{{ docker.ignore_systemd_errors }}"
+        # Установка Python SDK для Docker для всех пользователей
+        - name: Install Python docker SDK for all users
+          pip:
+            name: docker
+            umask: "0022"
+          when: not docker.skip_install
+          vars:
+            docker_ignore_failed_when: "{{ docker.ignore_install_errors }}"
+          failed_when: docker_ignore_failed_when
 
+        # Установка опций для демона Docker
+        - name: Set daemon_options
+          set_fact:
+            daemon_options: "{{ docker.tmpfs_storage.enable 
+              | ternary(
+                  docker.daemon_options | combine({ 'data-root': docker.tmpfs_storage.path }),
+                  docker.daemon_options
+                ) 
+              }}"
+
+        # Убедиться, что каталог /etc/docker существует
+        - name: Ensure /etc/docker/ directory exists
+          file:
+            path: /etc/docker
+            state: directory
+            mode: 0755
+          when: daemon_options.keys() | length > 0
+
+        # Конфигурация опций демона Docker
+        - name: Configure Docker daemon options
+          copy:
+            content: "{{ daemon_options | to_nice_json }}"
+            dest: /etc/docker/daemon.json
+            mode: 0644
+          when: daemon_options.keys() | length > 0
+          notify: Restart docker
+
+    # Принудительное выполнение обработчиков
     - name: Ensure handlers are notified now to avoid firewall conflicts
       meta: flush_handlers
 
+    # Проверка работоспособности сервиса Docker
+    - name: Verify Docker service is running
+      command: systemctl is-active docker
+      register: docker_status
+      failed_when: docker_status.stdout != "active"
+      ignore_errors: yes
+
+    # Откат конфигурации Docker, если сервис не работает
+    - name: Restore Docker config from backup and restart if Docker is not running
+      block:
+        - name: Restore Docker config from backup
+          copy:
+            src: /etc/docker/daemon.json.backup
+            dest: /etc/docker/daemon.json
+            remote_src: yes
+          notify: Restart docker
+        - name: Restart Docker service
+          systemd:
+            name: docker
+            state: restarted
+        - name: Fail the role if config is invalid
+          fail:
+            msg: "The Docker configuration is invalid. The backup configuration has been restored."
+      when: docker_status.failed
+
+    # Создание маркера последнего успешного запуска
     - name: Create run marker
       file:
         path: /tmp/{{ role_name }}.{{ docker.cache_key }}.run-marker
-        state: touch            
+        state: touch
         mode: 0644
