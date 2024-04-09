@@ -11,6 +11,7 @@
 - become: yes
   when: run_marker.files | length == 0 or not docker.enable_cache
   block:
+
     # Включение подзадач из setup.yml
     - include_tasks: setup.yml
 
@@ -33,15 +34,15 @@
     # Блок задач для установки Docker
     - vars:
         package: "docker-{{ docker.edition }}{{ (docker.package_version == '') | ternary('', '=' + docker.package_version) }}"
-      become: yes
       block:
-        # Установка Docker
-        - name: Install Docker
-          package:
-            name: "{{ package }}"
-            state: "{{ docker.package_state }}"
-          notify: Restart docker
-          failed_when: false # Использовать конкретные условия для failed_when, если нужно
+
+      # Установка Docker
+      - name: Install Docker
+        package:
+          name: "{{ package }}"
+          state: "{{ docker.package_state }}"
+        notify: Restart docker
+        failed_when: false # Использовать конкретные условия для failed_when, если нужно
 
     # Убедиться, что каталог /etc/docker существует
     - name: Ensure /etc/docker/ directory exists
@@ -73,18 +74,20 @@
 
     # Откат конфигурации Docker, если сервис не работает
     - name: Restore Docker config from backup and restart if Docker is not running
-      block:
-        - name: Restore Docker config from backup
-          copy:
-            src: /etc/docker/daemon.json.backup
-            dest: /etc/docker/daemon.json
-            remote_src: yes
-            mode: '0644'
-          notify: Restart docker
-        - name: Fail the role if config is invalid
-          fail:
-            msg: "The Docker configuration is invalid. The backup configuration has been restored."
       when: docker_service is failed
+      block:
+
+      - name: Restore Docker config from backup
+        copy:
+          src: /etc/docker/daemon.json.backup
+          dest: /etc/docker/daemon.json
+          remote_src: yes
+          mode: '0644'
+        notify: Restart docker
+        
+      - name: Fail the role if config is invalid
+        fail:
+          msg: "The Docker configuration is invalid. The backup configuration has been restored."
 
     # Создание маркера последнего успешного запуска
     - name: Create run marker
