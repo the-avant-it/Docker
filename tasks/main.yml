@@ -1,19 +1,12 @@
 ---
-
 # Собираем расширенные факты, включая информацию о сервисах
-
 - name: Gather detailed facts
-
   ansible.builtin.setup:
-
     gather_subset:
-
       - all
-
       - '!min'
-
   tags: always
-  
+
 # Поиск маркера последнего запуска роли
 - name: Find recent run marker
   find:
@@ -37,6 +30,12 @@
           package_version: "{{ docker.package_version_os_defaults[ansible_distribution + ansible_distribution_version] }}"
       when: docker.package_version is none
 
+    # Проверка наличия конфигурационного файла Docker
+    - name: Check if Docker config exists
+      shell: test -f /etc/docker/daemon.json
+      register: docker_config_check
+      ignore_errors: true
+
     # Резервное копирование текущей конфигурации Docker
     - name: Backup current Docker config
       copy:
@@ -44,7 +43,7 @@
         dest: /etc/docker/daemon.json.backup
         remote_src: yes
         mode: '0644' # Установка безопасных разрешений
-      when: "'docker' in ansible_facts.services"
+      when: docker_config_check.rc == 0
 
     # Блок задач для установки Docker
     - vars:
@@ -69,7 +68,7 @@
     # Конфигурация опций демона Docker
     - name: Configure Docker daemon options
       copy:
-        content: "{{ daemon_options | to_nice_json }}"
+        content: "{{ docker.daemon_options | to_nice_json }}"
         dest: /etc/docker/daemon.json
         mode: '0644'
       notify: Restart docker
