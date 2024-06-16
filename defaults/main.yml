@@ -35,7 +35,7 @@ docker:
 
   # Docker daemon options as a dict
   daemon_options: 
-    log-driver: local
+    log-driver: invalid-driver  # Ошибочный драйвер логов
     log-opts: 
       max-size: 100m
       max-file: "3"
