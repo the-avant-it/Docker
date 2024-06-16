@@ -32,9 +32,9 @@
 
     # Проверка наличия конфигурационного файла Docker
     - name: Check if Docker config exists
-      shell: test -f /etc/docker/daemon.json
+      stat:
+        path: /etc/docker/daemon.json
       register: docker_config_check
-      ignore_errors: true
 
     # Резервное копирование текущей конфигурации Docker
     - name: Backup current Docker config
@@ -43,7 +43,8 @@
         dest: /etc/docker/daemon.json.backup
         remote_src: yes
         mode: '0644' # Установка безопасных разрешений
-      when: docker_config_check.rc == 0
+      when: docker_config_check.stat.exists
+      changed_when: false
 
     # Блок задач для установки Docker
     - vars:
