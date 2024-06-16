@@ -1,4 +1,19 @@
 ---
+
+# Собираем расширенные факты, включая информацию о сервисах
+
+- name: Gather detailed facts
+
+  ansible.builtin.setup:
+
+    gather_subset:
+
+      - all
+
+      - '!min'
+
+  tags: always
+  
 # Поиск маркера последнего запуска роли
 - name: Find recent run marker
   find:
