@@ -85,7 +85,7 @@
         state: started
       register: docker_service
       changed_when: false
-      failed_when: docker_service.status != "active"
+      failed_when: docker_service.status.ActiveState != "active"
 
     # Откат конфигурации Docker, если сервис не работает
     - name: Restore Docker config from backup and restart if Docker is not running

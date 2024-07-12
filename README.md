@@ -4,6 +4,10 @@ Role for installing Docker runtime
 
 # Changelog
 
+## 2.7.2
+
+- fix docker state
+
 ## 2.7.1
 
 - Add support for debian 10 without overriding package_version
