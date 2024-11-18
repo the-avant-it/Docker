@@ -1,0 +1,33 @@
+---
+dependency:
+  name: galaxy
+  options:
+    ignore-certs: True
+    ignore-errors: True
+    role-file: requirements.yml
+driver:
+#pip install molecule-hetznercloud --break-system-packages
+#pip install hcloud --break-system-packages
+#export HCLOUD_TOKEN="el6Q4ZirHnJgGeyn8mFE6y3a9zKpUu4h025TeIli972OANdhNlaQ6iZwtw7zKdfT"
+  name: molecule_hetznercloud
+platforms:
+  - name: Docker-test
+    image: ubuntu-22.04
+#    volumes:
+#    - name: volume-1
+#      size: 20
+#-#    server_type: cx22
+#-#    location: hel1
+#-#    datacenter: null
+#-#    user_data: null
+provisioner:
+  name: ansible
+  config_options:
+    defaults:
+      hash_behaviour: merge
+  connection_options:
+    ansible_ssh_user: root
+#    ansible_ssh_user: ubuntu
+  inventory:
+    links:
+      group_vars: ../../defaults/main.yml

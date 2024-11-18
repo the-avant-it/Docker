@@ -1,0 +1,25 @@
+docker:
+  package_version: "5:20.10.24~3-0~ubuntu-jammy"
+  daemon_options:
+    log-driver: local
+    log-opts:
+      max-size: 100m
+      max-file: "3"
+    default-address-pools:
+    - base: 10.0.0.0/16
+      size: 24
+
+# For docker-cleanup-daemon role
+docker_cleanup_daemon:
+  ansible_variables:
+  - name: app_name
+    value: docker-cleanup-daemon
+  - name: disk_keep_free_space_percent
+    value: 25
+  # Should be higher than disk_keep_free_space_percent (do not remember why)
+  - name: builder_cache_reserved_disk_space_percent
+    value: 45
+  cron:
+    enable: true
+    hour: "*"
+    minute: "*/5"

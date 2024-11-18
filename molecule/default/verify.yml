@@ -1,0 +1,50 @@
+---
+- name: Check Docker service
+  hosts: all
+  become: true
+  tasks:
+    - name: Ensure Docker service is running
+      ansible.builtin.systemd:
+        name: docker
+        state: started
+      register: docker_service_status
+      failed_when: false  # не останавливать выполнение, если сервис не запущен
+
+    - name: Assert that Docker service is running
+      ansible.builtin.assert:
+        that:
+          - docker_service_status.status.Result == 'success'
+        msg: "Docker service is not running"
+
+    - name: Run docker info command
+      ansible.builtin.command:
+        cmd: docker info
+      register: docker_info
+      failed_when: docker_info.rc != 0
+
+    - name: Assert that docker info command ran successfully
+      ansible.builtin.assert:
+        that:
+          - docker_info.rc == 0
+        msg: "Docker is not functioning correctly"
+
+    - name: Run a test container
+      ansible.builtin.docker_container:
+        name: test-container
+        image: hello-world
+        state: started
+        restart_policy: no
+      register: docker_container_status
+      failed_when: docker_container_status.failed
+
+
+    - name: Debug container status
+      ansible.builtin.debug:
+        msg: "Docker container status: {{ docker_container_status }}"
+
+    - name: Assert that Docker container ran successfully
+      ansible.builtin.assert:
+        that:
+          - docker_container_status.container.State.Status == 'exited'
+        msg: "Docker is not able to run containers"
+
