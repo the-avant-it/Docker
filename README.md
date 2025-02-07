@@ -4,7 +4,22 @@ Role for installing Docker runtime
 
 # Changelog
 
-## 2.7.3
+## 2.7.4
+
+- Add garbage collection by default
+```yaml
+  daemon_options: 
+    log-driver: local
+    log-opts: 
+      max-size: 100m
+      max-file: "3"
+    builder:
+      gc:
+        enabled: true
+        defaultKeepStorage: "20GB" 
+```
+
+## 2.7.3 (BROKEN)
 
 - Add garbage collection by default
 ```yaml
