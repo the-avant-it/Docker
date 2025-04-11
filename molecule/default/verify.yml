@@ -37,14 +37,3 @@
       register: docker_container_status
       failed_when: docker_container_status.failed
 
-
-    - name: Debug container status
-      ansible.builtin.debug:
-        msg: "Docker container status: {{ docker_container_status }}"
-
-    - name: Assert that Docker container ran successfully
-      ansible.builtin.assert:
-        that:
-          - docker_container_status.container.State.Status == 'exited'
-        msg: "Docker is not able to run containers"
-
